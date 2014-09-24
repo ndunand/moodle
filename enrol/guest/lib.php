@@ -61,6 +61,54 @@ class enrol_guest_plugin extends enrol_plugin {
         return;
     }
 
+    public function allow_manage(stdClass $instance) {
+        // Users with manage cap may tweak period and status.
+        return true;
+    }
+
+    /**
+     * Sets up navigation entries.
+     *
+     * @param stdClass $instancesnode
+     * @param stdClass $instance
+     * @return void
+     */
+    public function add_course_navigation($instancesnode, stdClass $instance) {
+        if ($instance->enrol !== 'guest') {
+             throw new coding_exception('Invalid enrol instance type!');
+        }
+
+        $context = context_course::instance($instance->courseid);
+        if (has_capability('enrol/guest:config', $context)) {
+            $managelink = new moodle_url('/enrol/guest/edit.php', array('courseid'=>$instance->courseid, 'id'=>$instance->id));
+            $instancesnode->add($this->get_instance_name($instance), $managelink, navigation_node::TYPE_SETTING);
+        }
+    }
+
+    /**
+     * Returns edit icons for the page with list of instances
+     * @param stdClass $instance
+     * @return array
+     */
+    public function get_action_icons(stdClass $instance) {
+        global $OUTPUT;
+
+        if ($instance->enrol !== 'guest') {
+            throw new coding_exception('invalid enrol instance!');
+        }
+        $context = context_course::instance($instance->courseid);
+
+        $icons = array();
+
+        if (has_capability('enrol/guest:config', $context)) {
+            $editlink = new moodle_url("/enrol/guest/edit.php", array('courseid'=>$instance->courseid, 'id'=>$instance->id));
+            $icons[] = $OUTPUT->action_icon($editlink, new pix_icon('t/edit', get_string('edit'), 'core',
+                array('class' => 'iconsmall')));
+        }
+
+        return $icons;
+    }
+
     /**
      * Attempt to automatically gain temporary guest access to course,
      * calling code has to make sure the plugin and instance are active.
