@@ -315,6 +315,7 @@ if ($data->addtemplate){
     $possiblefields = $DB->get_records('data_fields', array('dataid'=>$data->id), 'id');
     $patterns = array();
     $replacements = array();
+    $erroroccured = false;
 
     ///then we generate strings to replace
     foreach ($possiblefields as $eachfield){
@@ -328,9 +329,15 @@ if ($data->addtemplate){
             if (!empty($fieldnotifications[$field->field->name])) {
                 foreach ($fieldnotifications[$field->field->name] as $notification) {
                     $errors .= $OUTPUT->notification($notification);
+                    $erroroccured = true;
                 }
             }
-            $replacements[] = $errors . $field->display_add_field($rid, $datarecord);
+            if ($erroroccured) {
+                $replacements[] = $errors . $field->display_add_field($rid, $datarecord);
+            }
+            else {
+                $replacements[] = $field->display_add_field($rid, null);
+            }
         }
 
         // Replace the field id tag.
