@@ -332,11 +332,12 @@ if ($data->addtemplate){
                     $erroroccured = true;
                 }
             }
-            if ($erroroccured) {
-                $replacements[] = $errors . $field->display_add_field($rid, $datarecord);
+            if ($datarecord && isset($event) && $event instanceof \mod_data\event\record_created) {
+                // record created OK
+                $replacements[] = $field->display_add_field($rid, null);
             }
             else {
-                $replacements[] = $field->display_add_field($rid, null);
+                $replacements[] = $errors . $field->display_add_field($rid, $datarecord);
             }
         }
 
