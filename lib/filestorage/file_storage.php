@@ -196,7 +196,22 @@ class file_storage {
         if (!$conversion || $forcerefresh) {
             $conversion = $this->create_converted_document($file, $format, $forcerefresh);
             if (!$conversion) {
-                return false;
+//                return false;
+                // mod_ND : don't just return false, but a PDF document instead, containing a useful error message
+                // TODO check in future versions (now 3.1.2) that this is not used anywhere but in mod/assign/feedback/editpdf/classes/document_services.php
+                $filerecord = new stdClass();
+                $filerecord->component = 'core';
+                $filerecord->contextid = $context->id;
+                $filerecord->userid = get_admin()->id;
+                $filerecord->filearea = 'documentconversion';
+                $filerecord->filepath = '/';
+                $filerecord->itemid = 0;
+                $filerecord->filename = 'conversion_failed_dynamic.html';
+                $html =
+                        '<h1 style="color:#f00;">La conversion a échoué !</h1><h2>Veuillez consulter le document original &laquo;' . $file->get_filename() . '&raquo; déposé par l\'utilisateur, car le convertisseur ne peut l\'afficher ici.</h2>';
+                $failedwarningfile = $this->create_file_from_string($filerecord, $html);
+                $conversion = $this->create_converted_document($failedwarningfile, $format, true);
+                $failedwarningfile->delete();
             }
         }
 
