@@ -207,8 +207,7 @@ class file_storage {
                 $filerecord->filepath = '/';
                 $filerecord->itemid = 0;
                 $filerecord->filename = 'conversion_failed_dynamic.html';
-                $html =
-                        '<h1 style="color:#f00;">La conversion a échoué !</h1><h2>Veuillez consulter le document original &laquo;' . $file->get_filename() . '&raquo; déposé par l\'utilisateur, car le convertisseur ne peut l\'afficher ici.</h2>';
+                $html = '<h1 style="color:#f00;">Conversion of this document has failed!</h1><h2>Please use the original file uploaded by the user: &laquo;' . $file->get_filename() . '&raquo;, as the converter can not display it here.</h2>';
                 $failedwarningfile = $this->create_file_from_string($filerecord, $html);
                 $conversion = $this->create_converted_document($failedwarningfile, $format, true);
                 $failedwarningfile->delete();
