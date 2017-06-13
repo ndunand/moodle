@@ -25,6 +25,8 @@
 $string['above'] = 'Above';
 $string['actions'] = 'Actions';
 $string['appliesto'] = 'Applies to';
+$string['autostart'] = 'Start automatically';
+$string['autostart_help'] = 'If set, the tour will start automatically under certain conditions';
 $string['below'] = 'Below';
 $string['block'] = 'Block';
 $string['block_named'] = 'Block named \'{$a}\'';

@@ -50,6 +50,7 @@ class configuration {
             'orphan',
             'backdrop',
             'reflex',
+            'autostart',
         ];
     }
 
@@ -67,6 +68,8 @@ class configuration {
             case 'backdrop':
             case 'reflex':
                 return false;
+            case 'autostart':
+                return true;
         }
     }
 

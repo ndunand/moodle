@@ -582,6 +582,7 @@ class tour {
      * @return  boolean
      */
     public function should_show_for_user() {
+        global $DB;
         if (!$this->is_enabled()) {
             // The tour is disabled - it should not be shown.
             return false;
@@ -599,6 +600,16 @@ class tour {
                 return false;
             }
         }
+        else if ($tourresetdate = get_user_preferences(self::TOUR_REQUESTED_BY_USER . $this->get_id(), null)) {
+            return true;
+        }
+        else {
+            // tour is NOT to start automatically until specified so
+            $tour = $DB->get_record('tool_usertours_tours', ['id' => $this->get_id()], '*', MUST_EXIST);
+            $tourconfig = json_decode($tour->configdata);
+            return !(isset($tourconfig->autostart) && !$tourconfig->autostart);
+        }
+
 
         return true;
     }
@@ -681,6 +692,7 @@ class tour {
         $this->add_config_field_to_form($mform, 'orphan');
         $this->add_config_field_to_form($mform, 'backdrop');
         $this->add_config_field_to_form($mform, 'reflex');
+        $this->add_config_field_to_form($mform, 'autostart');
 
         return $this;
     }
