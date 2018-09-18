@@ -17,14 +17,17 @@
 /**
  * Version information
  *
- * @package   mod_choice
- * @copyright 1999 onwards Martin Dougiamas  {@link http://moodle.com}
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    mod_choice
+ * @copyright  2018 Université de Lausanne
+ * @author     Nicolas Dunand <Nicolas.Dunand@unil.ch>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+defined('MOODLE_INTERNAL') || die;
 
-$plugin->version   = 2018051401;       // The current module version (Date: YYYYMMDDXX)
-$plugin->requires  = 2018050800;    // Requires this Moodle version
-$plugin->component = 'mod_choice';     // Full name of the plugin (used for diagnostics)
-$plugin->cron      = 0;
+if ($ADMIN->fulltree) {
+    require_once($CFG->dirroot . '/mod/choice/lib.php');
+
+    $settings->add(new admin_setting_configcheckbox('choice/enablesoftlimits', get_string('enablesoftlimits', 'choice'), get_string('enablesoftlimits_desc', 'choice'), 0));
+}
+

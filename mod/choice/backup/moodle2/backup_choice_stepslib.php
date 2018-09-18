@@ -46,7 +46,7 @@ class backup_choice_activity_structure_step extends backup_activity_structure_st
         $options = new backup_nested_element('options');
 
         $option = new backup_nested_element('option', array('id'), array(
-            'text', 'maxanswers', 'timemodified'));
+            'text', 'maxanswers', 'softmaxanswers', 'timemodified'));
 
         $answers = new backup_nested_element('answers');
 

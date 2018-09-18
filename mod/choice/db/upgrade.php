@@ -22,7 +22,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 function xmldb_choice_upgrade($oldversion) {
-    global $CFG;
+    global $CFG, $DB;
 
     // Automatically generated Moodle v3.2.0 release upgrade line.
     // Put any upgrade step following this.
@@ -35,6 +35,28 @@ function xmldb_choice_upgrade($oldversion) {
 
     // Automatically generated Moodle v3.5.0 release upgrade line.
     // Put any upgrade step following this.
+
+    $dbman = $DB->get_manager();
+
+    if ($oldversion < 2018051401) {
+
+        // Define existing table `choice` to be altered.
+        $table1 = new xmldb_table('choice');
+
+        // Adding field `softlimitanswers` to table `choice`.
+        $newfield1 = $table1->add_field('softlimitanswers', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0');
+        $dbman->add_field($table1, $newfield1);
+
+        // Define existing table `choice_options` to be altered.
+        $table2 = new xmldb_table('choice_options');
+
+        // Adding field `softlimitanswers` to table `choice_options`.
+        $newfield2 = $table2->add_field('softmaxanswers', XMLDB_TYPE_INTEGER, '10', null, false, null, '0');
+        $dbman->add_field($table2, $newfield2);
+
+
+        upgrade_mod_savepoint(true, 2018051401, 'choice');
+    }
 
     return true;
 }

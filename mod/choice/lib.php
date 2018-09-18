@@ -133,6 +133,9 @@ function choice_add_instance($choice) {
             if (isset($choice->limit[$key])) {
                 $option->maxanswers = $choice->limit[$key];
             }
+            if (isset($choice->softlimit[$key])) {
+                $option->softmaxanswers = $choice->softlimit[$key];
+            }
             $option->timemodified = time();
             $DB->insert_record("choice_options", $option);
         }
@@ -172,6 +175,9 @@ function choice_update_instance($choice) {
         $option->choiceid = $choice->id;
         if (isset($choice->limit[$key])) {
             $option->maxanswers = $choice->limit[$key];
+        }
+        if (isset($choice->softlimit[$key])) {
+            $option->softmaxanswers = $choice->softlimit[$key];
         }
         $option->timemodified = time();
         if (isset($choice->optionid[$key]) && !empty($choice->optionid[$key])){//existing choice record
@@ -214,6 +220,7 @@ function choice_prepare_options($choice, $user, $coursemodule, $allresponses) {
     $cdisplay = array('options'=>array());
 
     $cdisplay['limitanswers'] = true;
+    $cdisplay['softlimitanswers'] = (bool)$choice->softlimitanswers;
     $context = context_module::instance($coursemodule->id);
 
     foreach ($choice->option as $optionid => $text) {
@@ -223,6 +230,7 @@ function choice_prepare_options($choice, $user, $coursemodule, $allresponses) {
             $option->attributes->value = $optionid;
             $option->text = format_string($text);
             $option->maxanswers = $choice->maxanswers[$optionid];
+            $option->softmaxanswers = $choice->softmaxanswers[$optionid];
             $option->displaylayout = $choice->display;
 
             if (isset($allresponses[$optionid])) {
@@ -528,6 +536,7 @@ function prepare_choice_show_results($choice, $course, $cm, $allresponses) {
     if (!empty($choice->showunanswered)) {
         $choice->option[0] = get_string('notanswered', 'choice');
         $choice->maxanswers[0] = 0;
+        $choice->softmaxanswers[0] = '';
     }
 
     // Remove from the list of non-respondents the users who do not have access to this activity.
@@ -544,6 +553,7 @@ function prepare_choice_show_results($choice, $course, $cm, $allresponses) {
         $display->options[$optionid]->text = format_string($optiontext, true,
             ['context' => context_module::instance($cm->id)]);
         $display->options[$optionid]->maxanswer = $choice->maxanswers[$optionid];
+        $display->options[$optionid]->softmaxanswer = $choice->softmaxanswers[$optionid];
 
         if (array_key_exists($optionid, $allresponses)) {
             $display->options[$optionid]->user = $allresponses[$optionid];
@@ -552,6 +562,7 @@ function prepare_choice_show_results($choice, $course, $cm, $allresponses) {
     }
     unset($display->option);
     unset($display->maxanswers);
+    unset($display->softmaxanswers);
 
     $display->numberofuser = count(array_unique($allusers));
     $context = context_module::instance($cm->id);
@@ -677,6 +688,7 @@ function choice_get_choice($choiceid) {
             foreach ($options as $option) {
                 $choice->option[$option->id] = $option->text;
                 $choice->maxanswers[$option->id] = $option->maxanswers;
+                $choice->softmaxanswers[$option->id] = $option->softmaxanswers;
             }
             return $choice;
         }

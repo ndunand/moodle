@@ -44,9 +44,17 @@ class mod_choice_mod_form extends moodleform_mod {
         $mform->addElement('selectyesno', 'limitanswers', get_string('limitanswers', 'choice'));
         $mform->addHelpButton('limitanswers', 'limitanswers', 'choice');
 
+        if (get_config('choice', 'enablesoftlimits')) {
+            $mform->addElement('selectyesno', 'softlimitanswers', get_string('softlimitanswers', 'choice'));
+            $mform->addHelpButton('softlimitanswers', 'softlimitanswers', 'choice');
+        }
+
         $repeatarray = array();
         $repeatarray[] = $mform->createElement('text', 'option', get_string('optionno', 'choice'));
         $repeatarray[] = $mform->createElement('text', 'limit', get_string('limitno', 'choice'));
+        if (get_config('choice', 'enablesoftlimits')) {
+            $repeatarray[] = $mform->createElement('text', 'softlimit', get_string('softlimitno', 'choice'));
+        }
         $repeatarray[] = $mform->createElement('hidden', 'optionid', 0);
 
         if ($this->_instance){
@@ -61,6 +69,12 @@ class mod_choice_mod_form extends moodleform_mod {
         $repeateloptions['limit']['disabledif'] = array('limitanswers', 'eq', 0);
         $repeateloptions['limit']['rule'] = 'numeric';
         $repeateloptions['limit']['type'] = PARAM_INT;
+        if (get_config('choice', 'enablesoftlimits')) {
+            $repeateloptions['softlimit']['default'] = 0;
+            $repeateloptions['softlimit']['disabledif'] = array('softlimitanswers', 'eq', 0);
+            $repeateloptions['softlimit']['rule'] = 'numeric';
+            $repeateloptions['softlimit']['type'] = PARAM_INT;
+        }
 
         $repeateloptions['option']['helpbutton'] = array('choiceoptions', 'choice');
         $mform->setType('option', PARAM_CLEANHTML);
@@ -109,14 +123,19 @@ class mod_choice_mod_form extends moodleform_mod {
     function data_preprocessing(&$default_values){
         global $DB;
         if (!empty($this->_instance) && ($options = $DB->get_records_menu('choice_options',array('choiceid'=>$this->_instance), 'id', 'id,text'))
-               && ($options2 = $DB->get_records_menu('choice_options', array('choiceid'=>$this->_instance), 'id', 'id,maxanswers')) ) {
+               && ($options2 = $DB->get_records_menu('choice_options', array('choiceid'=>$this->_instance), 'id', 'id,maxanswers'))
+               && ($options3 = $DB->get_records_menu('choice_options', array('choiceid'=>$this->_instance), 'id', 'id,softmaxanswers'))) {
             $choiceids=array_keys($options);
             $options=array_values($options);
             $options2=array_values($options2);
+            $options3=array_values($options3);
 
             foreach (array_keys($options) as $key){
                 $default_values['option['.$key.']'] = $options[$key];
                 $default_values['limit['.$key.']'] = $options2[$key];
+                if (get_config('choice', 'enablesoftlimits')) {
+                    $default_values['softlimit[' . $key . ']'] = $options3[$key];
+                }
                 $default_values['optionid['.$key.']'] = $choiceids[$key];
             }
 

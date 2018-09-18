@@ -1,0 +1,8 @@
+
+.path-mod-choice .choices .choice-softlimitexceeded {
+    /*background-color: #f0b9b8;*/
+}
+
+.path-mod-choice .results .choice-softlimitexceeded {
+    background-color: #f0b9b8;
+}

@@ -50,7 +50,13 @@ class mod_choice_renderer extends plugin_renderer_base {
         $choicecount = 0;
         foreach ($options['options'] as $option) {
             $choicecount++;
-            $html .= html_writer::start_tag('li', array('class'=>'option'));
+
+            $extraclass = '';
+            if (get_config('choice', 'enablesoftlimits') && $options['softlimitanswers'] && $option->countanswers > (int)$option->softmaxanswers) {
+                $extraclass = ' choice-softlimitexceeded';
+            }
+
+            $html .= html_writer::start_tag('li', array('class'=>'option' . $extraclass));
             if ($multiple) {
                 $option->attributes->name = 'answer[]';
                 $option->attributes->type = 'checkbox';
@@ -175,6 +181,14 @@ class mod_choice_renderer extends plugin_renderer_base {
         $usernumberheader->text = get_string('numberofuser', 'choice');
         $columns['usernumber'][] = $usernumberheader;
 
+        if (get_config('choice', 'enablesoftlimits') && $choices->softlimitanswers) {
+            $softlimitheader = clone($celldefault);
+            $softlimitheader->header = true;
+            $softlimitheader->attributes['class'] = 'header data';
+            $softlimitheader->text = get_string('softlimit', 'choice');
+            $columns['softlimit'][] = $softlimitheader;
+        }
+
         $optionsnames = [];
         foreach ($choices->options as $optionid => $options) {
             $celloption = clone($celldefault);
@@ -198,10 +212,21 @@ class mod_choice_renderer extends plugin_renderer_base {
 
             $columns['options'][] = $celloption;
             $columns['usernumber'][] = $cellusernumber;
+
+            if (get_config('choice', 'enablesoftlimits') && $choices->softlimitanswers) {
+                $cellsoftlimit = clone($celldefault);
+                $cellsoftlimit->style = 'text-align: center;';
+                $cellsoftlimit->text = $options->softmaxanswer;
+                $columns['softlimit'][] = $cellsoftlimit;
+            }
         }
 
         $table->head = $columns['options'];
         $table->data[] = new html_table_row($columns['usernumber']);
+
+        if (get_config('choice', 'enablesoftlimits') && $choices->softlimitanswers) {
+            $table->data[] = new html_table_row($columns['softlimit']);
+        }
 
         $columns = array();
 
@@ -220,7 +245,9 @@ class mod_choice_renderer extends plugin_renderer_base {
             if ($choices->showunanswered || $optionid > 0) {
                 if (!empty($options->user)) {
                     $optionusers = '';
+                    $optionusercount = 0;
                     foreach ($options->user as $user) {
+                        $optionusercount++;
                         $data = '';
                         if (empty($user->imagealt)) {
                             $user->imagealt = '';
@@ -245,7 +272,13 @@ class mod_choice_renderer extends plugin_renderer_base {
                         $userimage = $this->output->user_picture($user, array('courseid' => $choices->courseid, 'link' => false));
                         $profileurl = new moodle_url('/user/view.php', array('id' => $user->id, 'course' => $choices->courseid));
                         $profilelink = html_writer::link($profileurl, $userimage . $userfullname);
-                        $data .= html_writer::div($checkbox . $profilelink, 'm-b-1');
+
+                        $extraclass = '';
+                        if ($optionid > 0 && get_config('choice', 'enablesoftlimits') && $choices->softlimitanswers &&
+                                $optionusercount > $options->softmaxanswer) {
+                            $extraclass = ' choice-softlimitexceeded';
+                        }
+                        $data .= html_writer::div($checkbox . $profilelink, 'm-b-1' . $extraclass);
 
                         $optionusers .= $data;
                     }
