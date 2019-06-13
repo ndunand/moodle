@@ -90,6 +90,8 @@ function atto_recordrtc_strings_for_js() {
                      'videortc',
                      'nowebrtc_title',
                      'nowebrtc',
+                     'nowebrtcsafari_title',
+                     'nowebrtcsafari',
                      'gumabort_title',
                      'gumabort',
                      'gumnotallowed_title',
