@@ -63,6 +63,12 @@ pre[class*="language-"] {
     color: slategray;
 }
 
+code .token.comment {
+    color: slategray;
+    background: none;
+    padding: 0;
+}
+
 .token.punctuation {
     color: #999;
 }
