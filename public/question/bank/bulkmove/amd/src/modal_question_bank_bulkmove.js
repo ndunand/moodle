@@ -143,6 +143,11 @@ export default class ModalQuestionBankBulkmove extends Modal {
         document.querySelector(ModalQuestionBankBulkmove.SELECTORS.SEARCH_BANK).addEventListener("change", async(e) => {
             await this.updateCategorySelector(e.currentTarget.value);
             this.updateSaveButtonState();
+            // In updateCategorySelector() the HTML of the SEARCH_CATEGORY select is replaced,
+            // so we need to add a new event listener.
+            document.querySelector(ModalQuestionBankBulkmove.SELECTORS.SEARCH_CATEGORY).addEventListener("change", () => {
+                this.updateSaveButtonState();
+            });
         });
 
         this.getModal().on("click", ModalQuestionBankBulkmove.SELECTORS.SAVE_BUTTON, (e) => {
